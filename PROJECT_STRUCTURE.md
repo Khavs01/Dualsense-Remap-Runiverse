@@ -1,6 +1,6 @@
 # Project Structure
 
-This document explains the structure of the DualSense Controller Mapper project.
+This document explains the structure of the DualSense Controller Mapper project for Runiverse.
 
 ## File Structure
 

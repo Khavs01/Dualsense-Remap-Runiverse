@@ -1,3 +1,10 @@
+"""
+DualSense PS5 Controller Mapper for Runiverse
+-------------------------------------------
+This application maps PlayStation 5 DualSense controller inputs to keyboard and mouse actions
+for playing Runiverse (https://game.runiverse.world/).
+"""
+
 import pygame
 import pyautogui
 import time

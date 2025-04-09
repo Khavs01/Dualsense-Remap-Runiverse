@@ -1,6 +1,6 @@
-# DualSense Controller Mapper
+# DualSense PS5 Controller Mapper for Runiverse
 
-A Python application that allows you to use your PlayStation 5 DualSense controller as a keyboard and mouse input device on your PC.
+A Python application that allows you to use your PlayStation 5 DualSense controller to play Runiverse (https://game.runiverse.world/) on PC by mapping controller inputs to keyboard and mouse actions.
 
 ## Features
 
@@ -20,45 +20,21 @@ A Python application that allows you to use your PlayStation 5 DualSense control
 
 ## Installation
 
-### Option 1: Using the executable (Recommended)
-
-1. Download the latest release from the [Releases](https://github.com/yourusername/dualsense-mapper/releases) page
-2. Extract the ZIP file
-3. Run `dualsense_mapper.exe`
-
-### Option 2: From source
-
 1. Clone this repository:
-   ```
-   git clone https://github.com/yourusername/dualsense-mapper.git
-   cd dualsense-mapper
-   ```
+```
+git clone https://github.com/Khavs01/Dualsense-Remap-Runiverse.git
+cd Dualsense-Remap-Runiverse
+```
 
 2. Install the required dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
+```
+pip install -r requirements.txt
+```
 
 3. Run the application:
-   ```
-   python dualsense_mapper_optimized.py
-   ```
-
-## Building the executable
-
-If you want to build the executable yourself:
-
-1. Install the required dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
-
-2. Run the build script:
-   ```
-   build.bat
-   ```
-
-3. The executable will be created in the `dist` folder
+```
+python dualsense_mapper_optimized.py
+```
 
 ## Controls
 
@@ -95,5 +71,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
+- Created for the Runiverse gaming community
 - [Pygame](https://www.pygame.org/) for controller input handling
 - [PyAutoGUI](https://pyautogui.readthedocs.io/) for keyboard and mouse simulation 
