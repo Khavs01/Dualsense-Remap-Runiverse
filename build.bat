@@ -23,4 +23,4 @@ echo.
 echo Testing the executable...
 timeout /t 2 >nul
 start "" "dist\DualSense-Runiverse.exe"
-pause 
+pause

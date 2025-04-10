@@ -1,32 +1,30 @@
-"""
-DualSense PS5 Controller Mapper for Runiverse
--------------------------------------------
-This application maps PlayStation 5 DualSense controller inputs to keyboard and mouse actions
-for playing Runiverse (https://game.runiverse.world/).
-
-Security measures:
-- Rate limiting on inputs to prevent system overload
-- Input validation for all controller events
-- Emergency stop with L1 + R1 + L2 + R2
-- Automatic stop on system errors
-"""
-
 import pygame
 import pyautogui
 import time
 from threading import Thread
 import sys
+import os
 import tkinter as tk
 from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
 import webbrowser
 
+# Function to get the correct file path
+def resource_path(relative_path):
+    """Returns the correct path for files in packaged or development environments"""
+    if hasattr(sys, '_MEIPASS'):
+        # Temporary path used by PyInstaller
+        return os.path.join(sys._MEIPASS, relative_path)
+    else:
+        # Normal relative path when running the script directly
+        return os.path.join(os.path.abspath("."), relative_path)
+
 # PyAutoGUI safety configuration
-pyautogui.FAILSAFE = False  # Desativando failsafe do mouse
+pyautogui.FAILSAFE = False  # Disable mouse failsafe
 pyautogui.PAUSE = 0.001
 
 # Security settings
-MAX_MOUSE_SPEED = 150  # Maximum pixels per frame (increased from 100)
+MAX_MOUSE_SPEED = 150  # Maximum pixels per frame
 INPUT_RATE_LIMIT = 0.016  # ~60fps
 EMERGENCY_STOP_COMBO = False
 last_input_time = 0
@@ -51,7 +49,7 @@ def show_security_warning():
     messagebox.showinfo("Security Information", 
         "Important Security Information:\n\n" +
         "1. Press L1 + R1 + L2 + R2 for emergency stop\n" +
-        "2. The program only works with Runiverse game\n" +
+        "2. The program only works with the Runiverse game\n" +
         "3. All inputs are rate-limited for safety\n\n" +
         "By clicking OK, you acknowledge these safety measures."
     )
@@ -178,8 +176,9 @@ def create_status_window():
     image_frame = ttk.Frame(main_frame)
     image_frame.pack(fill=tk.BOTH, expand=False)
     
-    # Load and resize the DualSense image
-    image = Image.open("Dualsense-PS5.png")
+    # Load and resize the DualSense image using resource_path
+    image_path = resource_path("Dualsense-PS5.png")
+    image = Image.open(image_path)
     image_width = int(window_width * 0.6)
     wpercent = image_width / float(image.size[0])
     hsize = int(float(image.size[1]) * float(wpercent))
@@ -589,4 +588,4 @@ if __name__ == "__main__":
         print(f"Critical error: {e}")
     finally:
         pygame.quit()
-        sys.exit(0) 
+        sys.exit(0)
