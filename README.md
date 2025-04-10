@@ -37,6 +37,40 @@ pip install -r requirements.txt
 python dualsense_mapper_optimized.py
 ```
 
+## Running the Executable
+
+If you prefer to run the pre-built executable from the `dist` folder:
+
+1. Download the latest release or clone the repository
+2. Navigate to the `dist` folder
+3. Run `DualSense-Runiverse.exe`
+
+### Windows Security Alert
+
+When running the executable for the first time, you will likely see a Windows Defender SmartScreen warning message stating "Windows protected your PC" because the application is from an unverified publisher:
+
+![Windows Defender Warning](https://raw.githubusercontent.com/Khavs01/Dualsense-Remap-Runiverse/master/windows_protect_unknown_publisher.png)
+
+**This is normal and expected** for applications without a code signing certificate. To run the application:
+
+1. Click on "More info" to expand the dialog
+2. Click "Run anyway" to proceed with running the application
+3. You only need to do this once; Windows will remember your choice for future use
+
+**Why does this happen?** 
+This warning appears because the executable is not digitally signed with a certificate from a trusted certificate authority. Obtaining such certificates requires payment and verification, which is typically done by commercial software but often not by free, open-source tools like this one.
+
+**Removing the Warning**
+The only way to completely remove this warning is to purchase a code signing certificate, which costs between $200-$400 per year. As this is an open-source project provided for free, this expense is currently not feasible. If you'd like to sponsor a code signing certificate to improve the user experience for everyone, you can contribute using the ETH address in the Donations section below.
+
+**Is it safe?**
+The application's complete source code is available in this repository for review. The executable is built directly from this source code without modifications.
+
+If you have concerns, you can:
+- Review the source code and build the executable yourself using the instructions in the "Building the Executable" section
+- Run the Python script directly instead of using the pre-built executable
+- Use an antivirus tool to scan the executable before running it
+
 ## Controls
 
 | Controller Input | PC Action |
