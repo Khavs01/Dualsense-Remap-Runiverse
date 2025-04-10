@@ -1,4 +1,4 @@
-# DualSense PS5 Controller Mapper for Runiverse
+# DualSense PS5 Controller Mapper for Runiverse Game
 
 A Python application that allows you to use your PlayStation 5 DualSense controller to play Runiverse (https://game.runiverse.world/) on PC by mapping controller inputs to keyboard and mouse actions.
 
