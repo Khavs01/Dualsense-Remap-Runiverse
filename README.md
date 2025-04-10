@@ -17,7 +17,7 @@ A Python application that allows you to use your PlayStation 5 DualSense control
 - Windows 10/11
 - Python 3.8 or higher
 - PlayStation 5 DualSense controller
-- USB connection or Bluetooth adapter
+- USB connection
 
 ## Installation
 
@@ -59,7 +59,7 @@ python dualsense_mapper_optimized.py
 
 You can adjust the following settings in the code:
 
-- `MOUSE_SENSITIVITY`: Base mouse sensitivity (default: 18)
+- `MOUSE_SENSITIVITY`: Base mouse sensitivity (default: 36)
 - `MOUSE_ACCELERATION`: Mouse acceleration factor (default: 1.4)
 - `STICK_DEADZONE`: Minimum stick movement to register input (default: 0.15)
 - `MOUSE_SMOOTHING`: Mouse movement smoothing factor (default: 0.8)
