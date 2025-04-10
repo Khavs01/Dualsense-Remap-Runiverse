@@ -8,16 +8,99 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
 import webbrowser
+import io
+import base64
+
+# Initializing debug logs
+debug_log = []
+def add_log(message):
+    global debug_log
+    debug_log.append(f"{time.strftime('%H:%M:%S')}: {message}")
+    print(f"DEBUG: {message}")
+    if len(debug_log) > 100:
+        debug_log = debug_log[-100:]
+
+# Load the base64 image from file
+def load_base64_image():
+    try:
+        # First, try to load using PyInstaller path (if packaged)
+        if hasattr(sys, '_MEIPASS'):
+            path = os.path.join(sys._MEIPASS, 'image_base64.txt')
+            add_log(f"Looking for base64 image at: {path}")
+            if os.path.exists(path):
+                with open(path, 'r') as f:
+                    add_log("Loaded base64 image from PyInstaller path")
+                    return f.read()
+        
+        # If not packaged, try the development path
+        path = os.path.join(os.path.abspath("."), 'image_base64.txt')
+        add_log(f"Looking for base64 image at: {path}")
+        if os.path.exists(path):
+            with open(path, 'r') as f:
+                add_log("Loaded base64 image from development path")
+                return f.read()
+                
+        add_log("Base64 image file not found in any location")
+        return None
+    except Exception as e:
+        add_log(f"Error loading base64 from file: {e}")
+        return None
+
+# DualSense image embedded as base64
+DUALSENSE_IMAGE_BASE64 = load_base64_image()
+
+# Function to get the image from embedded data
+def get_embedded_image():
+    """Returns the DualSense image from embedded base64 data"""
+    try:
+        if not DUALSENSE_IMAGE_BASE64:
+            add_log("No embedded image data available")
+            return load_image_from_file()
+            
+        # Decode base64 to bytes
+        image_data = base64.b64decode(DUALSENSE_IMAGE_BASE64)
+        # Create an image object from bytes
+        image = Image.open(io.BytesIO(image_data))
+        add_log("Successfully loaded embedded image")
+        return image
+    except Exception as e:
+        add_log(f"Error loading embedded image: {e}")
+        # Fall back to file-based loading if embedded fails
+        return load_image_from_file()
+
+# Fallback function to load image from file
+def load_image_from_file():
+    """Fallback to load image from file if embedded fails"""
+    try:
+        image_path = resource_path("Dualsense-PS5.png")
+        add_log(f"Attempting to load image from file: {image_path}")
+        image = Image.open(image_path)
+        add_log("Successfully loaded image from file")
+        return image
+    except Exception as e:
+        add_log(f"Error loading image from file: {e}")
+        return None
 
 # Function to get the correct file path
 def resource_path(relative_path):
     """Returns the correct path for files in packaged or development environments"""
-    if hasattr(sys, '_MEIPASS'):
-        # Temporary path used by PyInstaller
-        return os.path.join(sys._MEIPASS, relative_path)
-    else:
-        # Normal relative path when running the script directly
-        return os.path.join(os.path.abspath("."), relative_path)
+    try:
+        if hasattr(sys, '_MEIPASS'):
+            # Temporary path used by PyInstaller
+            base_path = sys._MEIPASS
+            add_log(f"Using PyInstaller path: {base_path}")
+        else:
+            # Normal relative path when running the script directly
+            base_path = os.path.abspath(".")
+            add_log(f"Using development path: {base_path}")
+        
+        full_path = os.path.join(base_path, relative_path)
+        add_log(f"Full resource path: {full_path}")
+        add_log(f"Resource exists: {os.path.exists(full_path)}")
+        return full_path
+    except Exception as e:
+        add_log(f"Error in resource_path: {e}")
+        return relative_path
 
 # PyAutoGUI safety configuration
 pyautogui.FAILSAFE = False  # Disable mouse failsafe
@@ -43,6 +126,7 @@ MOUSE_MIN_MOVE = 0.1
 running = True
 controller_status = "Initializing..."
 button_overlays = {}
+init_timeout = 15  # Timeout in seconds for initialization
 
 def show_security_warning():
     """Shows security information to the user"""
@@ -117,6 +201,24 @@ def update_button_state(canvas, tag, active):
         overlay['active'] = active
         canvas.update_idletasks()
 
+def copy_to_clipboard(root, text):
+    """Copy text to clipboard and show brief confirmation"""
+    root.clipboard_clear()
+    root.clipboard_append(text)
+    
+    # Create brief confirmation popup that auto-dismisses
+    popup = tk.Toplevel(root)
+    popup.overrideredirect(True)
+    popup.geometry(f"+{root.winfo_pointerx()+10}+{root.winfo_pointery()+10}")
+    popup.config(bg='#3a3a3a')
+    
+    label = tk.Label(popup, text="Copied to clipboard!", bg='#3a3a3a', fg='white', 
+                     padx=10, pady=5, font=("Arial", 9))
+    label.pack()
+    
+    # Auto-dismiss after 1 second
+    popup.after(1000, popup.destroy)
+
 def create_status_window():
     """Creates a status window with DualSense image"""
     root = tk.Tk()
@@ -176,22 +278,35 @@ def create_status_window():
     image_frame = ttk.Frame(main_frame)
     image_frame.pack(fill=tk.BOTH, expand=False)
     
-    # Load and resize the DualSense image using resource_path
-    image_path = resource_path("Dualsense-PS5.png")
-    image = Image.open(image_path)
-    image_width = int(window_width * 0.6)
-    wpercent = image_width / float(image.size[0])
-    hsize = int(float(image.size[1]) * float(wpercent))
-    image = image.resize((image_width, hsize), Image.Resampling.LANCZOS)
-    photo = ImageTk.PhotoImage(image)
-    
-    # Create canvas for image and overlays
-    canvas = tk.Canvas(image_frame, width=image.width, height=image.height, bg='#734373', highlightthickness=0)
-    canvas.pack(pady=5)
-    
-    # Display the DualSense image
-    canvas.create_image(0, 0, image=photo, anchor="nw")
-    canvas._image = photo
+    # Load DualSense image directly from embedded data
+    add_log("Attempting to load embedded DualSense image")
+    try:
+        # Try to load the embedded image first
+        image = get_embedded_image()
+        
+        if image:
+            add_log("Processing the loaded image")
+            image_width = int(window_width * 0.6)
+            wpercent = image_width / float(image.size[0])
+            hsize = int(float(image.size[1]) * float(wpercent))
+            image = image.resize((image_width, hsize), Image.Resampling.LANCZOS)
+            photo = ImageTk.PhotoImage(image)
+            
+            # Create canvas for image and overlays
+            canvas = tk.Canvas(image_frame, width=image.width, height=image.height, bg='#734373', highlightthickness=0)
+            canvas.pack(pady=5)
+            
+            # Display the DualSense image
+            canvas.create_image(0, 0, image=photo, anchor="nw")
+            canvas._image = photo
+        else:
+            raise Exception("Failed to load image from any source")
+    except Exception as e:
+        add_log(f"Error processing image: {e}")
+        # Fallback to a blank canvas if image loading fails
+        canvas = tk.Canvas(image_frame, width=480, height=300, bg='#734373', highlightthickness=0)
+        canvas.pack(pady=5)
+        canvas.create_text(240, 150, text="Image not found", fill="white", font=("Arial", 14))
     
     # Frame for button mappings
     mappings_frame = ttk.LabelFrame(main_frame, text="Button Mappings", padding=10, style='TLabelframe')
@@ -250,7 +365,6 @@ def create_status_window():
         ("© 2025 DualSense Mapper for Runiverse", None),
         ("Follow on X: @KhavsNFT", "https://x.com/KhavsNFT"),
         ("Donations (ETH/RON/MemeCoin/NFT):", None),
-        ("0xf15304c1Be1c784Dd032343e81d6CEAbe3f00856", None)
     ]
     
     for text, link in dev_info:
@@ -260,6 +374,37 @@ def create_status_window():
         else:
             label = ttk.Label(dev_frame, text=text, font=("Arial", 9), foreground='#ffffff')
         label.pack(anchor='center')
+    
+    # Address frame with copy button
+    address_frame = ttk.Frame(dev_frame)
+    address_frame.pack(anchor='center')
+    
+    eth_address = "0xf15304c1Be1c784Dd032343e81d6CEAbe3f00856"
+    address_label = ttk.Label(address_frame, text=eth_address, font=("Arial", 9), foreground='#ffffff')
+    address_label.pack(side=tk.LEFT, padx=(0, 5))
+    
+    # Copy button style
+    copy_button_style = {
+        'background': '#333333',
+        'foreground': '#ffffff',
+        'activebackground': '#444444',
+        'activeforeground': '#ffffff',
+        'relief': 'flat',
+        'borderwidth': 0,
+        'padx': 5,
+        'pady': 0,
+        'font': ('Arial', 8),
+        'width': 2,
+        'height': 1
+    }
+    
+    # Create copy button with symbol
+    copy_button = tk.Button(address_frame, text="📋", command=lambda: copy_to_clipboard(root, eth_address), **copy_button_style)
+    copy_button.pack(side=tk.LEFT)
+    
+    # Make the address itself clickable too
+    address_label.bind("<Button-1>", lambda e: copy_to_clipboard(root, eth_address))
+    address_label.config(cursor="hand2")
     
     # Create button overlays with fixed positions
     create_button_overlay(canvas, 364, 199, 20, 20, "button_x", '#1e90ff', 'gray25')  # X (blue)
@@ -297,30 +442,69 @@ def apply_mouse_acceleration(value):
         return value * 0.7
     return (abs(value) ** MOUSE_ACCELERATION) * (1 if value >= 0 else -1)
 
+def show_debug_info():
+    """Shows debug information to help diagnose issues"""
+    try:
+        # Coletar informações do sistema
+        system_info = [
+            f"Python version: {sys.version}",
+            f"Pygame installed: {'Yes' if 'pygame' in sys.modules else 'No'}",
+            f"PyAutoGUI installed: {'Yes' if 'pyautogui' in sys.modules else 'No'}",
+            f"Working directory: {os.getcwd()}",
+            f"Has image file: {'Yes' if os.path.exists('Dualsense-PS5.png') else 'No'}",
+            f"Debug log: {debug_log}"
+        ]
+        
+        # Display in messagebox
+        messagebox.showinfo("Debug Information", "\n".join(system_info))
+    except Exception as e:
+        messagebox.showerror("Error showing debug info", str(e))
+
 def handle_controller(canvas):
-    global controller_status, running, EMERGENCY_STOP_COMBO
+    global controller_status, running, EMERGENCY_STOP_COMBO, init_timeout
     
     try:
         controller_status = "Initializing DualSense controller..."
+        add_log("Starting controller initialization")
         
-        pygame.init()
-        pygame.joystick.init()
+        try:
+            add_log("Initializing pygame")
+            pygame.init()
+            add_log("Pygame initialized successfully")
+        except Exception as e:
+            add_log(f"Pygame initialization error: {e}")
+            controller_status = f"Error initializing pygame: {e}"
+            return
         
+        try:
+            add_log("Initializing pygame joystick")
+            pygame.joystick.init()
+            add_log("Pygame joystick initialized successfully")
+        except Exception as e:
+            add_log(f"Pygame joystick initialization error: {e}")
+            controller_status = f"Error initializing joystick: {e}"
+            return
+        
+        add_log(f"Joystick count: {pygame.joystick.get_count()}")
         while pygame.joystick.get_count() == 0 and running:
             controller_status = "Waiting for controller connection..."
             pygame.joystick.quit()
+            add_log("Reinitializing joystick module")
             pygame.joystick.init()
+            add_log(f"New joystick count: {pygame.joystick.get_count()}")
             time.sleep(1)
         
         if not running:
+            add_log("Program terminated while waiting for controller")
             return
         
+        add_log("Joystick detected, initializing controller")
         joystick = pygame.joystick.Joystick(0)
         joystick.init()
         
+        add_log(f"Controller name: {joystick.get_name()}")
         if "DualSense" not in joystick.get_name():
-            emergency_stop(root, "Unsupported controller detected. Only DualSense is supported.")
-            return
+            add_log(f"Warning: Controller detected is not DualSense: {joystick.get_name()}")
         
         controller_status = f"Connected: {joystick.get_name()}"
         
@@ -574,18 +758,43 @@ def handle_controller(canvas):
                 time.sleep(1)
                 
     except Exception as e:
+        add_log(f"Critical error in handle_controller: {e}")
         emergency_stop(root, f"Critical error: {e}")
 
 if __name__ == "__main__":
     try:
+        add_log("Program starting")
         root, canvas = create_status_window()
+        
+        # Add debug button to main window
+        debug_button_style = {
+            'background': '#555555',
+            'foreground': '#ffffff',
+            'activebackground': '#777777',
+            'activeforeground': '#ffffff',
+            'relief': 'raised',
+            'borderwidth': 2,
+            'padx': 10,
+            'pady': 3,
+            'font': ('Arial', 8)
+        }
+        
+        debug_frame = ttk.Frame(root)
+        debug_frame.pack(side=tk.BOTTOM, fill=tk.X, pady=5)
+        debug_button = tk.Button(debug_frame, text="Debug Info", command=show_debug_info, **debug_button_style)
+        debug_button.pack(side=tk.RIGHT, padx=10)
+        
         show_security_warning()
+        add_log("Starting controller thread")
         controller_thread = Thread(target=handle_controller, args=(canvas,))
         controller_thread.daemon = True
         controller_thread.start()
+        add_log("Main GUI loop starting")
         root.mainloop()
     except Exception as e:
+        add_log(f"Critical error in main: {e}")
         print(f"Critical error: {e}")
     finally:
+        add_log("Program shutdown")
         pygame.quit()
         sys.exit(0)

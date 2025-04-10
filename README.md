@@ -77,6 +77,34 @@ You can adjust the following settings in the code:
 - **Controller not detected**: Make sure your controller is connected via USB or Bluetooth and recognized by Windows
 - **High latency**: Try reducing the `MOUSE_SMOOTHING` value
 - **Too sensitive/not sensitive enough**: Adjust the `MOUSE_SENSITIVITY` value
+- **Emergency stop**: Press L1 + R1 + L2 + R2 simultaneously to force close the application
+
+## Building the Executable
+
+To create a standalone executable:
+
+1. Install PyInstaller:
+```
+pip install pyinstaller
+```
+
+2. Run the build script:
+```
+.\build.bat
+```
+
+3. The executable will be created in the `dist` folder
+
+## Developer Information
+
+### Contact
+- Developer: Khavs
+- Follow on X/Twitter: [@KhavsNFT](https://x.com/KhavsNFT)
+
+### Donations
+If you find this tool useful, consider supporting the developer:
+
+- ETH/RON/MemeCoin/NFT: `0xf15304c1Be1c784Dd032343e81d6CEAbe3f00856`
 
 ## License
 

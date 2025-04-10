@@ -12,6 +12,7 @@ dualsense-mapper/
 ├── dualsense_mapper_optimized.py  # Main application code
 ├── dualsense_mapper_backup_working.py  # Backup of working version
 ├── Dualsense-PS5.png          # Controller image for GUI
+├── image_base64.txt           # Base64-encoded image data for embedding
 ├── requirements.txt           # Python dependencies
 ├── build.bat                  # Script to build the executable
 ├── README.md                  # Project documentation
@@ -31,6 +32,8 @@ The main application file contains:
 - Mouse acceleration and smoothing algorithms
 - Visual feedback system with button overlays
 - Controller reconnection handling
+- Developer information and donation options
+- Clipboard functionality for ETH address copying
 
 ### Backup File (`dualsense_mapper_backup_working.py`)
 
@@ -41,8 +44,15 @@ A backup of the last known working version of the application, maintained for sa
 A Windows batch script that:
 
 1. Installs required dependencies
-2. Builds the executable using PyInstaller
-3. Places the executable in the `dist` folder
+2. Converts the controller image to base64 for embedding
+3. Builds the executable using PyInstaller with proper options
+4. Places the executable in the `dist` folder
+5. Tests the executable after building
+
+### Image Files
+
+- `Dualsense-PS5.png`: Original image of the DualSense controller used in the GUI
+- `image_base64.txt`: Base64-encoded version of the image for embedding in the executable
 
 ### GitHub Actions Workflow (`.github/workflows/build.yml`)
 
@@ -74,4 +84,24 @@ The application has several configurable parameters:
 - `MOUSE_SMOOTHING`: Controls how smooth the mouse movement is
 - `MOUSE_MIN_MOVE`: Minimum mouse movement to register
 
-These can be adjusted in the main application file to suit different preferences. 
+These can be adjusted in the main application file to suit different preferences.
+
+## User Interface Features
+
+- Real-time visual feedback for controller inputs
+- Status information and connection state
+- Button mapping display for easy reference
+- Developer contact information
+- Donation address with copy-to-clipboard functionality
+- Emergency stop combination (L1+R1+L2+R2)
+
+## Building and Distribution
+
+The project can be built into a standalone executable using the included build script, which handles:
+
+1. Installing dependencies from `requirements.txt`
+2. Preparing resources (images, etc.) for embedding
+3. Configuring PyInstaller to create a single-file executable
+4. Placing the built executable in the `dist` folder
+
+This allows end-users to run the application without installing Python or any dependencies. 
