@@ -102,4 +102,16 @@ venv.bak/
 .idea/
 .vscode/
 *.swp
-*.swo 
+*.swo
+
+# Virtual environment
+venv/
+env/
+
+# Backup files
+*_backup*
+button_coordinates.txt
+
+# Windows
+Thumbs.db
+desktop.ini 

@@ -8,13 +8,15 @@ This document explains the structure of the DualSense Controller Mapper project 
 dualsense-mapper/
 ├── .github/                    # GitHub specific files
 │   └── workflows/              # GitHub Actions workflows
-│       └── build.yml           # Workflow to build executable on release
+│       └── build.yml          # Workflow to build executable on release
 ├── dualsense_mapper_optimized.py  # Main application code
-├── requirements.txt            # Python dependencies
-├── build.bat                   # Script to build the executable
-├── README.md                   # Project documentation
-├── LICENSE                     # MIT License
-└── PROJECT_STRUCTURE.md        # This file
+├── dualsense_mapper_backup_working.py  # Backup of working version
+├── Dualsense-PS5.png          # Controller image for GUI
+├── requirements.txt           # Python dependencies
+├── build.bat                  # Script to build the executable
+├── README.md                  # Project documentation
+├── LICENSE                    # MIT License
+└── PROJECT_STRUCTURE.md       # This file
 ```
 
 ## Key Components
@@ -25,8 +27,14 @@ The main application file contains:
 
 - Controller input handling using Pygame
 - Keyboard and mouse simulation using PyAutoGUI
-- GUI interface using Tkinter
+- Simple GUI interface using Tkinter
 - Mouse acceleration and smoothing algorithms
+- Visual feedback system with button overlays
+- Controller reconnection handling
+
+### Backup File (`dualsense_mapper_backup_working.py`)
+
+A backup of the last known working version of the application, maintained for safety.
 
 ### Build Script (`build.bat`)
 
@@ -53,6 +61,7 @@ The project relies on the following main libraries:
 - `pygame`: For controller input handling
 - `pyautogui`: For keyboard and mouse simulation
 - `tkinter`: For the GUI (comes with Python)
+- `pillow`: For image handling in the GUI
 - `pyinstaller`: For creating the executable
 
 ## Configuration
